@@ -49,5 +49,9 @@ public record ClientService(ClientRepository clientRepository) {
         public Optional<Client> getClientById (Integer clientId){
             return clientRepository.findById(clientId);
         }
+
+        public Optional<Client> findByName(String name) {
+        return clientRepository.findByName(name);
+    }
 }
 
