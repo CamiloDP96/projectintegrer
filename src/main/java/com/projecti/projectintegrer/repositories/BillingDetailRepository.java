@@ -1,9 +1,9 @@
 package com.projecti.projectintegrer.repositories;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.projecti.projectintegrer.domain.entities.BillDetail;
 
 
-public interface BillingDetailRepository extends JpaRepository<BillDetail, Integer>{
+public interface BillingDetailRepository extends MongoRepository<BillDetail, Integer>{
 }
