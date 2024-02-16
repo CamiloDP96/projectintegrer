@@ -1,57 +1,60 @@
 package com.projecti.projectintegrer.service;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.projecti.projectintegrer.domain.dto.ClientDto;
 import com.projecti.projectintegrer.domain.entities.Client;
+import com.projecti.projectintegrer.exception.MessageEnum;
+import com.projecti.projectintegrer.exception.ReservException;
+import com.projecti.projectintegrer.mapper.ClientMapper;
 import com.projecti.projectintegrer.repositories.ClientRepository;
 
 @Service
-public record ClientService(ClientRepository clientRepository) {
+public record ClientService(
+    ClientRepository clientRepository,
+    ClientMapper mapper
+) {
      // Create
     public void createClient(ClientDto clientDto){
-        Client client = Client.builder()
-            .name(clientDto.name())
-            .build();
-
+        Client client = mapper.toEntity(clientDto);
         clientRepository.save(client);
     }
 
     // Update
-    public void updateClient(ClientDto clientDto){
-        Client client = clientRepository.findById(clientDto.id())
-            .orElseThrow(() -> new RuntimeException("Client not found..."));
-        updateClientData(client, clientDto);
+    public void updateClient(Integer id, ClientDto clientDto) throws ReservException {
+        clientRepository.findById(id)
+            .orElseThrow(()-> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        Client client = mapper.toEntity(clientDto);
         clientRepository.save(client);
     }
 
-    private void updateClientData(
-        Client client,
-        ClientDto clientDto
-        ){
-            client.setId(clientDto.id());
-            client.setName(clientDto.name());
-        }
-
-        // Delete
-        public void deleteClient(Integer clientId){
-            Client client = clientRepository.findById(clientId)
-                .orElseThrow(()-> new RuntimeException("Client not found"));
-            clientRepository.delete(client);
-        }
-
-        public List<Client> getAllClients(){
-            return clientRepository.findAll();
-        }
-        public Optional<Client> getClientById (Integer clientId){
-            return clientRepository.findById(clientId);
-        }
-
-        public Optional<Client> findByName(String name) {
-        return clientRepository.findByName(name);
+    // Delete
+    public void deleteClient(Integer Id) throws ReservException {
+        Client client = clientRepository.findById(Id)
+        .orElseThrow(()-> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        clientRepository.delete(client);
     }
+
+    //getters
+    public ClientDto getClientById (Integer Id) throws ReservException {
+        Client client = clientRepository.findById(Id)
+            .orElseThrow(()-> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        return mapper.toDto(client);
+    }
+
+    public List<ClientDto> getAllClients(Integer offset, Integer limit) throws ReservException {
+        Pageable pageable = PageRequest.of(offset, limit);
+        Page<Client> reservations = clientRepository.findAll(pageable);
+        if (reservations.getContent().isEmpty()){
+            throw new ReservException(MessageEnum.DATA_NOT_FOUND);
+        }
+        return mapper.toDtoList(reservations.getContent());
+    }
+
 }
 

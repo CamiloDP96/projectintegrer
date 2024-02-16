@@ -1,6 +1,5 @@
 package com.projecti.projectintegrer.domain.dto;
 
-import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -8,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public record RoomDto(
     Integer id,
     Integer room,
-    LocalDate searcheed_time,
-    String status
+    String benefits,
+    String type,
+    Double pricePerNigth
     ) {
 }

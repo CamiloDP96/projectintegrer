@@ -5,12 +5,7 @@ import java.util.Objects;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -21,6 +16,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "Reservation")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Reservation {
     @Id
     @SequenceGenerator(
@@ -35,7 +31,17 @@ public class Reservation {
     private Integer quantityPeople;
     private LocalDate checkIn;
     private LocalDate checkOut;
-    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private StatusEnum state;
+
+    @ManyToOne
+    @JoinColumn(name = "id_client")
+    private Client client;
+
+    @ManyToOne
+    @JoinColumn(name = "id_room")
+    private Room room;
 
     @Override
     public final boolean equals (Object o){

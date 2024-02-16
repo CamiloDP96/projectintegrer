@@ -3,57 +3,60 @@ package com.projecti.projectintegrer.service;
 import java.util.List;
 import java.util.Optional;
 
+import javax.print.attribute.standard.PageRanges;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.projecti.projectintegrer.domain.dto.ReservationDto;
 import com.projecti.projectintegrer.domain.entities.Reservation;
+import com.projecti.projectintegrer.exception.MessageEnum;
+import com.projecti.projectintegrer.exception.ReservException;
+import com.projecti.projectintegrer.mapper.ReservationMapper;
 import com.projecti.projectintegrer.repositories.ReservationRepository;
 
 @Service
-public record ReservationService(ReservationRepository reservationRepository) {
+public record ReservationService(
+    ReservationRepository reservationRepository,
+    ReservationMapper mapper
+    ) {
      // Create
     public void createReservation(ReservationDto reservationDto){
-        Reservation reservation = Reservation.builder()
-            .quantityPeople(reservationDto.quantityPeople())
-            .checkIn(reservationDto.checkIn())
-            .checkOut(reservationDto.checkOut())
-            .status(reservationDto.status())
-            .build();
-
+        Reservation reservation = mapper.toEntity(reservationDto);
         reservationRepository.save(reservation);
     }
 
     // Update
-    public void updateReservation(ReservationDto reservationDto){
-        Reservation reservation = reservationRepository.findById(reservationDto.id())
-            .orElseThrow(() -> new RuntimeException("Reservation not found..."));
-        updateReservationData(reservation, reservationDto);
+    public void updateReservation(Integer Id,ReservationDto reservationDto) throws ReservException {
+        reservationRepository.findById(Id)
+            .orElseThrow(() -> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        Reservation reservation = mapper.toEntity(reservationDto);
         reservationRepository.save(reservation);
     }
 
-    private void updateReservationData(
-        Reservation reservation,
-        ReservationDto reservationDto
-        ){
-            reservation.setId(reservationDto.id());
-            reservation.setQuantityPeople(reservationDto.quantityPeople());
-            reservation.setCheckIn(reservationDto.checkIn());
-            reservation.setCheckOut(reservationDto.checkOut());
-            reservation.setStatus(reservationDto.status());
-        }
-
         // Delete
-        public void deleteReservation(Integer reservationId){
-            Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(()-> new RuntimeException("Reservation not found"));
+        public void deleteReservation(Integer Id) throws ReservException {
+            Reservation reservation = reservationRepository.findById(Id)
+                .orElseThrow(()-> new ReservException(MessageEnum.DATA_NOT_FOUND));
             reservationRepository.delete(reservation);
         }
 
-        public List<Reservation> getAllReservation(){
-            return reservationRepository.findAll();
+        //Getters
+        public List<ReservationDto> getAllReservation(Integer offset, Integer limit) throws ReservException {
+            Pageable pageable = PageRequest.of(offset, limit);
+            Page<Reservation> reservations = reservationRepository.findAll(pageable);
+            if (reservations.getContent().isEmpty()) {
+                throw new ReservException(MessageEnum.DATA_NOT_FOUND);
+            }
+            return mapper.toDtoList(reservations.getContent());
         }
-        public Optional<Reservation> getReservationById (Integer reservationId){
-            return reservationRepository.findById(reservationId);
+
+        public ReservationDto getReservationById (Integer Id) throws ReservException {
+            Reservation reservation = reservationRepository.findById(Id)
+                .orElseThrow(() -> new ReservException(MessageEnum.DATA_NOT_FOUND));
+            return mapper.toDto(reservation);
         }
 }
 

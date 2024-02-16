@@ -1,101 +1,118 @@
 package com.projecti.projectintegrer.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.projecti.projectintegrer.domain.dto.BillDetailDto;
 import com.projecti.projectintegrer.domain.dto.RoomDto;
-import com.projecti.projectintegrer.service.BillDetailService;
+import com.projecti.projectintegrer.exception.MessageEnum;
+import com.projecti.projectintegrer.exception.ReservException;
+import com.projecti.projectintegrer.exception.ReservExceptionHandler;
 import com.projecti.projectintegrer.service.RoomService;
 
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+@WithMockUser
+@SpringBootTest
 public class RoomControllerTest {
-    private MockMvc mockMvc;
 
-    @Mock
-    private RoomService roomService;
-
-    @InjectMocks
+    @Autowired
     private RoomController roomController;
 
+    @MockBean
+    private RoomService roomService;
+    private MockMvc mockMvc;
+
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(roomController).build();
+    public void setup() {
+        this.mockMvc = standaloneSetup(roomController)
+            .setControllerAdvice(new ReservExceptionHandler())
+            .build();
     }
 
     @Test
-    void testRegisterRoom() throws Exception {
-        // Mock request data
-        RoomDto roomDto = new RoomDto(/* Add necessary parameters */);
+    void testCreateRoom() throws Exception {
+        RoomDto roomDto = new RoomDto(null, 101, "wifi", "standar", 100.00);
 
-        mockMvc.perform(post("/api/v1/room/createRoom")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(roomDto)))
-                .andExpect(status().isOk());
+        this.mockMvc.perform(post("/api/v1/room")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(roomDto))
+            .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
 
-        // Verify if roomService.createRoom was called
-        verify(roomService, times(1)).createRoom(roomDto);
+        verify(roomService).createRoom(roomDto);
     }
 
     @Test
-    void testShowRooms() throws Exception {
-        // Mocking behavior of roomService.getAllRooms()
-        when(roomService.getAllRooms()).thenReturn(/* Mocked room list */);
+    void testGetAllRooms() throws Exception {
+        final Integer offset = 0;
+        final Integer limit = 10;
 
-        mockMvc.perform(get("/api/v1/room/roomList"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        RoomDto room101Dto = new RoomDto(101,101 , "Wifi", "standar", 100.00);
+        RoomDto room102Dto = new RoomDto(102, 102, "wifi and minibar", "double", 250.00);
 
-        // Verify if roomService.getAllRooms was called
-        verify(roomService, times(1)).getAllRooms();
+        List<RoomDto> roomsDto = Arrays.asList(room101Dto,room102Dto);
+
+        when(roomService.getAllRooms(offset, limit)).thenReturn(roomsDto);
+        MockHttpServletResponse response = mockMvc.perform(
+                get("/api/v1/room/roomList/" + offset + "/" + limit))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse();
+
+            verify(roomService).getAllRooms(offset, limit);
+            assertThat(response.getContentAsString()).isEqualTo(new ObjectMapper().writeValueAsString(roomsDto));
     }
 
     @Test
-    void testDeleteRoom() throws Exception {
-        Integer roomIdToDelete = 1; // Replace with an actual ID
+    @SneakyThrows
+    void testGetRoomById() {
+        final Integer id = 100;
 
-        mockMvc.perform(delete("/api/v1/room/deleteRoom/{id}", roomIdToDelete))
-                .andExpect(status().isNoContent());
+        RoomDto room101Dto = new RoomDto(100, 101, "wifi", "standar", 100.00);
 
-        // Verify if roomService.deleteRoom was called with the provided ID
-        verify(roomService, times(1)).deleteRoom(roomIdToDelete);
+        when(roomService.getRoomById(id)).thenReturn(room101Dto);
+        MockHttpServletResponse response = mockMvc.perform(get("/api/v1/room/" + id))
+            .andExpect(status().isFound())
+            .andReturn()
+            .getResponse();
+
+            verify(roomService).getRoomById(id);
+            assertThat(response.getContentAsString()).isEqualTo(new ObjectMapper().writeValueAsString(room101Dto));
     }
 
     @Test
-    void testUpdateRoom() throws Exception {
-        // Mock request data
-        RoomDto roomDto = new RoomDto(/* Add necessary parameters */);
+    void testGetRoomByIdNotFound() throws Exception{
+        final Integer id = 100;
 
-        mockMvc.perform(put("/api/v1/room/update/room")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(roomDto)))
-                .andExpect(status().isNoContent());
+        when(roomService.getRoomById(id)).thenThrow(new ReservException(MessageEnum.DATA_NOT_FOUND));
 
-        // Verify if roomService.updateRoom was called
-        verify(roomService, times(1)).updateRoom(roomDto);
-    }
+        RoomController mockedRoomController = mock(RoomController.class);
 
-    // Utility method to convert object to JSON string
-    private String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        doThrow(new ReservException(MessageEnum.DATA_NOT_FOUND))
+            .when(mockedRoomController).findRoomById(id);
+
+        mockMvc.perform(get("/api/v1/room/" + id))
+            .andExpect(status().isNotFound())
+            .andExpect(result -> assertInstanceOf(ReservException.class, result.getResolvedException()))
+            .andExpect(result -> assertEquals(MessageEnum.DATA_NOT_FOUND.getMessage(), Objects.requireNonNull(result.getResolvedException()).getMessage()));
     }
 }

@@ -1,7 +1,12 @@
 package com.projecti.projectintegrer.domain.entities;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +22,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "client")
-public class Client {
+public class Client implements UserDetails{
 
     @Id
     @SequenceGenerator(
@@ -30,22 +35,21 @@ public class Client {
     )
     private Integer id;
     private String name;
+    private String username;
+    private String email;
     private String passwordHash;
-    private List<UserRoleEnum> roles;
+    private Boolean enable;
 
+    @Enumerated(EnumType.STRING)
+    private UserRoleEnum role;
 
-    public Client(String name, String passwordHash){
-        this.name = name;
-        this.passwordHash = passwordHash;
-    }
+    @OneToMany
+    @ToString.Exclude
+    private List<Reservation> reservations;
 
-    public String getName() {
-        return name;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+    @OneToMany
+    @ToString.Exclude
+    private List<Billing> bills;
 
     @Override
     public final boolean equals (Object o){
@@ -63,13 +67,46 @@ public class Client {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public List<UserRoleEnum> getRoles() {
-        return roles;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public void addRole(UserRoleEnum role) {
-        if (!roles.contains(role)) {
-            roles.add(role);
-        }
+    public String getName() {
+        return name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public String getPassword() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
     }
 }

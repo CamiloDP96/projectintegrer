@@ -3,55 +3,58 @@ package com.projecti.projectintegrer.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.projecti.projectintegrer.domain.dto.RoomDto;
 import com.projecti.projectintegrer.domain.entities.Room;
+import com.projecti.projectintegrer.exception.MessageEnum;
+import com.projecti.projectintegrer.exception.ReservException;
+import com.projecti.projectintegrer.mapper.RoomMapper;
 import com.projecti.projectintegrer.repositories.RoomRepository;
 
 @Service
-public record RoomService(RoomRepository roomRepository) {
+public record RoomService(
+    RoomRepository roomRepository,
+    RoomMapper mapper
+) {
      // Create
     public void createRoom(RoomDto roomDto){
-        Room room = Room.builder()
-            .room(roomDto.room())
-            .searcheed_time(roomDto.searcheed_time())
-            .status(roomDto.status())
-            .build();
-
+        Room room = mapper.toEntity(roomDto);
         roomRepository.save(room);
     }
 
     // Update
-    public void updateRoom(RoomDto roomDto){
-        Room room = roomRepository.findById(roomDto.id())
-            .orElseThrow(() -> new RuntimeException("Room not found..."));
-        updateRoomData(room, roomDto);
+    public void updateRoom(Integer Id,RoomDto roomDto) throws ReservException {
+        roomRepository.findById(Id)
+            .orElseThrow(() -> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        Room room = mapper.toEntity(roomDto);
         roomRepository.save(room);
     }
 
-    private void updateRoomData(
-        Room room,
-        RoomDto roomDto
-        ){
-            room.setId(roomDto.id());
-            room.setRoom(roomDto.room());
-            room.setSearcheed_time(roomDto.searcheed_time());
-            room.setStatus(roomDto.status());
-        }
-
         // Delete
-        public void deleteRoom(Integer roomId){
-            Room room = roomRepository.findById(roomId)
-                .orElseThrow(()-> new RuntimeException("Room not found"));
+        public void deleteRoom(Integer Id) throws ReservException {
+            Room room = roomRepository.findById(Id)
+                .orElseThrow(()-> new ReservException(MessageEnum.DATA_NOT_FOUND));
             roomRepository.delete(room);
         }
 
-        public List<Room> getAllRooms(){
-            return roomRepository.findAll();
+        //Getters
+        public List<RoomDto> getAllRooms(Integer offset, Integer limit) throws ReservException {
+            Pageable pageable = PageRequest.of(offset, limit);
+            Page<Room> rooms = roomRepository.findAll(pageable);
+            if (rooms.getContent().isEmpty()) {
+                throw new ReservException(MessageEnum.DATA_NOT_FOUND);
+            }
+            return mapper.toDtoList(rooms.getContent());
         }
-        public Optional<Room> getRoomById (Integer roomId){
-            return roomRepository.findById(roomId);
+
+        public RoomDto getRoomById (Integer Id) throws ReservException {
+            Room room = roomRepository.findById(Id)
+                .orElseThrow(() -> new ReservException(MessageEnum.DATA_NOT_FOUND));
+            return mapper.toDto(room);
         }
 }
 

@@ -1,6 +1,6 @@
 package com.projecti.projectintegrer.domain.entities;
 
-import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import org.hibernate.proxy.HibernateProxy;
@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -34,8 +35,13 @@ public class Room {
     )
     private Integer id;
     private Integer room;
-    private LocalDate searcheed_time;
-    private String status;
+    private String benefits;
+    private String type;
+    private Double pricePerNigth;
+
+    @OneToMany
+    @ToString.Exclude
+    private List<Reservation> reservation;
 
     @Override
     public final boolean equals (Object o){

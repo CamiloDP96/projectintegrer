@@ -1,5 +1,6 @@
 package com.projecti.projectintegrer.domain.entities;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import org.hibernate.proxy.HibernateProxy;
@@ -8,6 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -31,7 +34,14 @@ public class Billing{
         generator = "billing_id_sequence"
     )
     private Integer id;
+    private LocalDateTime date;
+    private Integer days;
     private Double total_amount;
+
+
+    @ManyToOne
+    @JoinColumn(name = "id_user")
+    private Client client;
 
     @Override
     public final boolean equals (Object o){

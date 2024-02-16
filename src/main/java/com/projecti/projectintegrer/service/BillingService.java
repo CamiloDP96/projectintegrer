@@ -1,53 +1,59 @@
 package com.projecti.projectintegrer.service;
 
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.projecti.projectintegrer.domain.dto.BillingDto;
 import com.projecti.projectintegrer.domain.entities.Billing;
+import com.projecti.projectintegrer.exception.MessageEnum;
+import com.projecti.projectintegrer.exception.ReservException;
+import com.projecti.projectintegrer.mapper.BillingMapper;
 import com.projecti.projectintegrer.repositories.BillingRepository;
 
 @Service
-public record BillingService(BillingRepository billingRepository) {
+public record BillingService(
+    BillingRepository billingRepository,
+    BillingMapper mapper
+    ) {
      // Create
     public void createBilling(BillingDto billingDto){
-        Billing billing = Billing.builder()
-            .total_amount(billingDto.total_amount())
-            .build();
-
+        Billing billing = mapper.toEntity(billingDto);
         billingRepository.save(billing);
     }
 
     // Update
-    public void updateBilling(BillingDto billingDto){
-        Billing billing = billingRepository.findById(billingDto.id())
-            .orElseThrow(() -> new RuntimeException("Billing not found..."));
-        updateBillingData(billing, billingDto);
+    public void updateBilling(Integer Id,BillingDto billingDto) throws ReservException {
+        billingRepository.findById(Id)
+            .orElseThrow(() -> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        Billing billing = mapper.toEntity(billingDto);
         billingRepository.save(billing);
     }
 
-    private void updateBillingData(
-        Billing billing,
-        BillingDto billingDto
-        ){
-            billing.setId(billingDto.id());
-            billing.setTotal_amount(billingDto.total_amount());
-        }
-
         // Delete
-        public void deleteBilling(Integer billingId){
-            Billing billing = billingRepository.findById(billingId)
+        public void deleteBilling(Integer Id){
+            Billing billing = billingRepository.findById(Id)
                 .orElseThrow(()-> new RuntimeException("Billing not found"));
             billingRepository.delete(billing);
         }
 
-        public List<Billing> getAllBillings(){
-            return billingRepository.findAll();
+        //getter
+        public List<BillingDto> getAllBillings(Integer offset, Integer limit) throws ReservException {
+            Pageable pageable = PageRequest.of(offset, limit);
+            Page<Billing> billing = billingRepository.findAll(pageable);
+            if (billing.getContent().isEmpty()) {
+                throw new ReservException(MessageEnum.DATA_NOT_FOUND);
+            }
+            return mapper.toDtoList(billing.getContent());
         }
-        public Optional<Billing> getClientById (Integer billingId){
-            return billingRepository.findById(billingId);
+
+        public BillingDto getBillById (Integer Id) throws ReservException {
+        Billing billing = billingRepository.findById(Id)
+            .orElseThrow(() -> new ReservException(MessageEnum.DATA_NOT_FOUND));
+        return mapper.toDto(billing);
         }
 }
 
