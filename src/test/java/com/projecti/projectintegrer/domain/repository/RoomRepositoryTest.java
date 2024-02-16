@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
-public class ClientRepositoryTest {
+public class RoomRepositoryTest {
 
     @Autowired
     private RoomRepository roomRepository;

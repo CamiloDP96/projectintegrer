@@ -8,6 +8,6 @@ import com.projecti.projectintegrer.domain.entities.Room;
 
 public interface RoomRepository extends JpaRepository<Room, Integer>{
 
-    Page<Room> findAll(Pageable pageable);
+    Page<Room> findAll(Pageable pegeable);
 
 }
