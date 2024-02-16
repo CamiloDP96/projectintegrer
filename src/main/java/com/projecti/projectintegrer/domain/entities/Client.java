@@ -1,13 +1,17 @@
 package com.projecti.projectintegrer.domain.entities;
 
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+
 import jakarta.persistence.*;
 import lombok.*;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 
 
 @Getter
@@ -18,7 +22,7 @@ import jakarta.persistence.SequenceGenerator;
 @Builder
 @Entity
 @Table(name = "client")
-public class Client {
+public class Client implements UserDetails{
 
     @Id
     @SequenceGenerator(
@@ -31,6 +35,21 @@ public class Client {
     )
     private Integer id;
     private String name;
+    private String username;
+    private String email;
+    private String passwordHash;
+    private Boolean enable;
+
+    @Enumerated(EnumType.STRING)
+    private UserRoleEnum role;
+
+    @OneToMany
+    @ToString.Exclude
+    private List<Reservation> reservations;
+
+    @OneToMany
+    @ToString.Exclude
+    private List<Billing> bills;
 
     @Override
     public final boolean equals (Object o){
@@ -46,5 +65,48 @@ public class Client {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public String getPassword() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
     }
 }
