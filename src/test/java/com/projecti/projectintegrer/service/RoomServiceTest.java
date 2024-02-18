@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +25,6 @@ import com.projecti.projectintegrer.domain.entities.Room;
 import com.projecti.projectintegrer.exception.ReservException;
 import com.projecti.projectintegrer.mapper.RoomMapper;
 import com.projecti.projectintegrer.repositories.RoomRepository;
-
-
 
 @SpringBootTest
 public class RoomServiceTest {

@@ -2,25 +2,34 @@ server:
   port: 8080
 spring:
   application:
-    name: reservas
+    name: projectintegrer
   datasource:
-    password: 'maria123'
-    url: jdbc:postgresql://localhost:5432/reservation-system
-    username: reservas
+    url: jdbc:postgresql://sistema-reservas-db.cngqy2mu0km2.us-east-2.rds.amazonaws.com/sistema_reservas
+    username: postgres
+    password: 'Abc1234!'
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
     properties:
       hibernate:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 application:
   security:
     jwt:
       secret-key: d5608c2a97c84dd0c0e0374ab865a131e0305df3f642ff83a03d796d748ac251
       expiration: 86400000 # a day
-      refresh-token:
-        expiration: 604800000 # 7 days
+
+springdoc:
+  api-docs:
+    path: /docs/api-docs
+    enabled: true
+  swagger-ui:
+    path: /docs/swagger-ui.html
+    operations-sorter: method
+    enabled: true
+  packages-to-scan: com.projecti.projectintegrer.controller
+  paths-to-match: /api/**
