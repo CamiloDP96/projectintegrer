@@ -4,9 +4,9 @@ spring:
   application:
     name: projectintegrer
   datasource:
-    url: jdbc:postgresql://localhost:5432/reservation-system
+    url: jdbc:postgresql://sistema-reservas-db.cngqy2mu0km2.us-east-2.rds.amazonaws.com/sistema_reservas
     username: postgres
-    password: 'Abc123*'
+    password: 'Abc1234!'
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
