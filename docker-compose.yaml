@@ -4,9 +4,9 @@ services:
     container_name: database
     image: postgres
     environment:
-      POSTGRES_USER: 
-      POSTGRES_PASSWORD: 
-      POSTGRES_DB: 
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: Abc1234!
+      POSTGRES_DB: Reservas
       PGDATA: /data/postgres
     volumes:
       - database:/data/postgres
