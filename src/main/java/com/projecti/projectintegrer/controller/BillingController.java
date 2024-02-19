@@ -57,7 +57,7 @@ public record BillingController(
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("update/bill")
+    @PutMapping("updateBill/{id}")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> updateBill(@PathVariable("id") Integer id, @RequestBody BillingDto billingDto) throws ReservException{
         billingService.updateBilling(id, billingDto);

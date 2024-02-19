@@ -2,16 +2,8 @@ package com.projecti.projectintegrer.domain.entities;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.hibernate.proxy.HibernateProxy;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 
@@ -24,7 +16,7 @@ import lombok.*;
 @Entity
 @Table(name = "client")
 public class Room {
-        @Id
+    @Id
     @SequenceGenerator(
         name = "room_id_sequence",
         sequenceName = "room_id_sequence"

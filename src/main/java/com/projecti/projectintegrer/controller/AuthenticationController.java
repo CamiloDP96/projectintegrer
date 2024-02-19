@@ -23,13 +23,13 @@ public record AuthenticationController(
     AuthenticationService authenticationService
 ) {
 
-    @PostMapping
+    @PostMapping("/resgister")
     public ResponseEntity<?> register(@RequestBody ClientDto clientDto) throws ReservException {
         String token = authenticationService.register(clientDto);
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
-        @PostMapping
+        @PostMapping("/authemntication")
         public ResponseEntity<?> authenticate(@RequestBody AuthenticationDto authenticationDto) throws ReservException {
             String token = authenticationService.authenticate(authenticationDto);
             return new ResponseEntity<>(token, HttpStatus.OK);

@@ -57,7 +57,7 @@ public record RoomController(
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("update/room")
+    @PutMapping("updateRoom/{id}")
     @SecurityRequirement(name = "bearerAuth")
         public ResponseEntity<?> updateRoom(@PathVariable("id") Integer id, @RequestBody RoomDto roomDto) throws ReservException{
             roomService.updateRoom(id, roomDto);

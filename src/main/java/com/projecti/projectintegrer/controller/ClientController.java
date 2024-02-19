@@ -56,7 +56,7 @@ public record ClientController(
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("update/client")
+    @PutMapping("updateClient/{id}")
     @SecurityRequirement(name = "bearerAuth")
         public ResponseEntity<?> updateClient(@PathVariable("id") Integer id, @RequestBody ClientDto clientDto) throws ReservException{
             clientService.updateClient(id, clientDto);

@@ -43,6 +43,9 @@ public record RoomService(
 
         //Getters
         public List<RoomDto> getAllRooms(Integer offset, Integer limit) throws ReservException {
+            if (limit <= 0) {
+                throw new ReservException(MessageEnum.DATA_NOT_FOUND);
+            }
             Pageable pageable = PageRequest.of(offset, limit);
             Page<Room> rooms = roomRepository.findAll(pageable);
             if (rooms.getContent().isEmpty()) {

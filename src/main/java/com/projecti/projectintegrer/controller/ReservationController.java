@@ -33,7 +33,7 @@ public record ReservationController(
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("reservationsList/{offset/{limit}}")
+    @GetMapping("reservationsList/{offset}/{limit}")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> showReservs(
         @PathVariable("offset") Integer offset,
@@ -56,7 +56,7 @@ public record ReservationController(
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("update/reserv")
+    @PutMapping("updateReserv/{id}")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<?> updateReserv(@PathVariable("id") Integer id, @RequestBody ReservationDto reservationDto) throws ReservException{
         reservationService.updateReservation(id, reservationDto);

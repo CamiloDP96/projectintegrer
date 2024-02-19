@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import com.projecti.projectintegrer.exception.ReservException;
 import com.projecti.projectintegrer.mapper.RoomMapper;
 import com.projecti.projectintegrer.repositories.RoomRepository;
 
+@ActiveProfiles("test")
 @SpringBootTest
 public class RoomServiceTest {
 
@@ -86,9 +88,9 @@ public class RoomServiceTest {
     @Test
     void testGetAllRoomsNotReturnData() {
         final Integer offset = 0;
-        final Integer limit = 0;
+        final Integer limit = 10; // Ajusta a un valor válido mayor que cero
 
-        when(roomRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(new ArrayList<>()));
+        when(roomRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
         assertThrows(ReservException.class, () -> roomService.getAllRooms(offset, limit));
     }
