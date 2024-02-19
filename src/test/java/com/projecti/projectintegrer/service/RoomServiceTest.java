@@ -26,9 +26,11 @@ import com.projecti.projectintegrer.domain.entities.Room;
 import com.projecti.projectintegrer.exception.ReservException;
 import com.projecti.projectintegrer.mapper.RoomMapper;
 import com.projecti.projectintegrer.repositories.RoomRepository;
+import org.springframework.test.context.TestPropertySource;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@TestPropertySource(locations = "classpath:application-test.yml")
 public class RoomServiceTest {
 
     @Autowired

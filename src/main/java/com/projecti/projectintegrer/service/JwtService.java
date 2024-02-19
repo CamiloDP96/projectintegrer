@@ -1,5 +1,6 @@
 package com.projecti.projectintegrer.service;
 
+import com.projecti.projectintegrer.config.JwtServiceConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,33 +19,33 @@ import java.util.function.Function;
 
 @Service
 public record JwtService(
-    @Value("${application.security.jwt.secret-key}")
-    String secretKey,
-    @Value("${application.security.jwt.expiration}")
-    Long jwtExpiration
+        JwtServiceConfig jwtServiceConfig
 ) {
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    private String generateToken(HashMap<String, Object> extraClaims, UserDetails userDetails){
-        return buildToken(extraClaims,userDetails,jwtExpiration);
+    private String generateToken(HashMap<String, Object> extraClaims, UserDetails userDetails) {
+        return buildToken(extraClaims, userDetails, jwtServiceConfig.getExpiration());
     }
 
     private String buildToken(
-        HashMap<String, Object> extraClaims,
-        UserDetails userDetails,
-        Long expiration
+            HashMap<String, Object> extraClaims,
+            UserDetails userDetails,
+            Long expiration
     ) {
         return Jwts.builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(Date.from(
-                LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().plusMillis(expiration)
-            ))
-            .signWith(getSignKey(), SignatureAlgorithm.HS256)
-            .compact();
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(Date.from(
+                        LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()
+                ))
+                .setExpiration(Date.from(
+                        LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().plusMillis(expiration)
+                ))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String extractUserName(String token) {
@@ -59,14 +60,14 @@ public record JwtService(
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-        .setSigningKey(getSignKey())
-        .build()
-        .parseClaimsJws(token)
-        .getBody();
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtServiceConfig.getSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -84,3 +85,5 @@ public record JwtService(
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 }
+
+
