@@ -12,10 +12,12 @@ import com.projecti.projectintegrer.domain.entities.Room;
 import com.projecti.projectintegrer.repositories.RoomRepository;
 
 import lombok.val;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@ActiveProfiles("test")
 @DataJpaTest
 public class RoomRepositoryTest {
 
