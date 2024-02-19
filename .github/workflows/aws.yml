@@ -9,19 +9,19 @@ jobs:
     name: Run unit test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 21
+      - uses: actions/checkout@v4
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'temurin'
       - name: Build with Maven
         env:
-          SPRING_CONFIGURATION_LOCATION: src/main/resources/application-test.yml
+          SPRING_CONFIGURATION_LOCATION: src/test/resources/application-test.yml
         run: mvn package --file pom.xml
       - name: Run Unit Tests
         env:
-          SPRING_CONFIGURATION_LOCATION: src/main/resources/application-test.yml
+          SPRING_CONFIGURATION_LOCATION: src/test/resources/application-test.yml
         run: mvn test --file pom.xml
 
   build:

@@ -1,11 +1,9 @@
 spring:
-
   datasource:
     url: jdbc:h2:mem:TEST
     username: sa
     driver-class-name: org.h2.Driver
-    password: Test@123!
-
+    password: Test1234!
   jpa:
     hibernate:
       ddl-auto: create
@@ -14,7 +12,6 @@ spring:
         format_sql: true
     database: h2
     database-platform: org.hibernate.dialect.H2Dialect
-
 application:
   security:
     jwt:
