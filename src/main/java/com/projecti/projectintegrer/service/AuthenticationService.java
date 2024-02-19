@@ -1,5 +1,6 @@
 package com.projecti.projectintegrer.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,18 +29,18 @@ public record AuthenticationService(
     public String register(ClientDto clientDto) throws ReservException {
         try {
             Client client = mapper.toEntity(clientDto);
-            client.setPasswordHash(passwordEncoder.encode(clientDto.password()));
+            client.setPassword(passwordEncoder.encode(clientDto.password()));
             client.setEnable(true);
             clientRepository.save(client);
             return jwtService.generateToken(client);
-        } catch (Exception e) {
+        } catch (DataIntegrityViolationException e) {
             throw new ReservException(MessageEnum.USER_EXISTS);
         }
     }
 
     public String authenticate(AuthenticationDto authenticationDto) throws ReservException {
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(authenticationDto.username(), authenticationDto.passwordHash())
+            new UsernamePasswordAuthenticationToken(authenticationDto.username(), authenticationDto.password())
         );
         Client client = clientRepository.findByUsername(authenticationDto.username())
             .orElseThrow(() -> new ReservException(MessageEnum.INVALID_CREDENTIALS));

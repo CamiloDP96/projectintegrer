@@ -21,7 +21,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "client")
+@Table(name = "client", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
 public class Client implements UserDetails{
 
     @Id
@@ -37,7 +37,7 @@ public class Client implements UserDetails{
     private String name;
     private String username;
     private String email;
-    private String passwordHash;
+    private String password;
     private Boolean enable;
 
     @Enumerated(EnumType.STRING)
@@ -72,16 +72,9 @@ public class Client implements UserDetails{
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
-    public String getName() {
-        return name;
-    }
-
+    @Override
     public String getUsername() {
         return username;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     @Override
@@ -102,11 +95,5 @@ public class Client implements UserDetails{
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    @Override
-    public String getPassword() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getPassword'");
     }
 }

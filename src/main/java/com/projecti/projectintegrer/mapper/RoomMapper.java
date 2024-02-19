@@ -8,7 +8,7 @@ import com.projecti.projectintegrer.domain.entities.Room;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface RoomMapper {
+public interface RoomMapper extends IBaseMapper {
 
     Room toEntity(RoomDto dto);
 

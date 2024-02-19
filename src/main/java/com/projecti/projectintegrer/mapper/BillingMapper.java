@@ -9,7 +9,7 @@ import com.projecti.projectintegrer.domain.dto.BillingDto;
 import com.projecti.projectintegrer.domain.entities.Billing;
 
 @Mapper(componentModel = "spring")
-public interface BillingMapper {
+public interface BillingMapper extends IBaseMapper {
 
     Billing toEntity(BillingDto dto);
 

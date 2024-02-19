@@ -10,8 +10,8 @@ public record ClientDto(
     String name,
     String username,
     String email,
-    @JsonIgnore(value = false)
     String password,
     UserRoleEnum role,
     Boolean enable) {
+
 }
