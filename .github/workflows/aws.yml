@@ -17,11 +17,11 @@ jobs:
           distribution: 'temurin'
       - name: Build with Maven
         env:
-          SPRING_CONFIGURATION_LOCATION: src/test/resources/application-test.yaml
+          SPRING_CONFIGURATION_LOCATION: src/test/resources/application-test.yml
         run: mvn package --file pom.xml
       - name: Run Unit Tests
         env:
-          SPRING_CONFIGURATION_LOCATION: src/test/resources/application-test.yaml
+          SPRING_CONFIGURATION_LOCATION: src/test/resources/application-test.yml
         run: mvn test --file pom.xml
 
   build:
